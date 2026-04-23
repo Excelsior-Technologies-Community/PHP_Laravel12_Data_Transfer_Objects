@@ -13,4 +13,9 @@ class Reservation extends Model
         'return_date',
         'penalty'
     ];
+
+    public function book()
+    {
+        return $this->belongsTo(\App\Models\Book::class);
+    }
 }
