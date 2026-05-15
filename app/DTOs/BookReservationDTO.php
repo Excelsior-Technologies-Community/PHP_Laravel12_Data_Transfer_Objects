@@ -3,6 +3,7 @@
 namespace App\DTOs;
 
 use App\Models\Book;
+use App\Models\Reservation;
 use Carbon\Carbon;
 
 class BookReservationDTO
@@ -10,10 +11,10 @@ class BookReservationDTO
     public int $book_id;
     public string $student_name;
     public string $issue_date;
-
     public string $return_date;
     public int $penalty;
     public bool $can_issue;
+    public bool $is_limit_reached;
 
     public function __construct($request)
     {
@@ -29,6 +30,11 @@ class BookReservationDTO
         $this->calculateReturnDate();
         $this->calculatePenalty();
         $this->checkAvailability();
+        $this->checkStudentLimit();
+
+        if ($this->is_limit_reached) {
+            $this->can_issue = false;
+        }
     }
 
     private function calculateReturnDate(): void
@@ -52,6 +58,12 @@ class BookReservationDTO
     {
         $book = Book::find($this->book_id);
         $this->can_issue = $book && $book->quantity > 0;
+    }
+
+    private function checkStudentLimit(): void
+    {
+        $count = Reservation::where('student_name', $this->student_name)->count();
+        $this->is_limit_reached = $count >= 3;
     }
 
     public function toArray(): array
