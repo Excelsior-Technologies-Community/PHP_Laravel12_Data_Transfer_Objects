@@ -10,6 +10,10 @@ class BookReservationService
 {
     public function reserve(BookReservationDTO $dto)
     {
+        if ($dto->is_limit_reached) {
+            throw new \Exception('Limit reached! A student can only reserve up to 3 books.');
+        }
+
         if (!$dto->can_issue) {
             throw new \Exception('Book not available');
         }

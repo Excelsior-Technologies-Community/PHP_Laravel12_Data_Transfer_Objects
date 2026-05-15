@@ -2,30 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Models\Category;
+use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    // Show all books
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::latest()->get();
-        return view('books.index', compact('books'));
+        $query = Book::with('category');
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $books = $query->latest()->get();
+        $categories = Category::all();
+
+        return view('books.index', compact('books', 'categories'));
     }
 
-    // Show create form
     public function create()
     {
-        return view('books.create');
+        $categories = Category::all();
+        return view('books.create', compact('categories'));
     }
 
-    // Store book
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required',
+            'title' => 'required|string|max:255',
             'quantity' => 'required|integer|min:0',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         Book::create($request->all());
@@ -33,7 +45,6 @@ class BookController extends Controller
         return redirect('/books')->with('success', 'Book added successfully');
     }
 
-    // Delete book
     public function delete($id)
     {
         Book::findOrFail($id)->delete();
