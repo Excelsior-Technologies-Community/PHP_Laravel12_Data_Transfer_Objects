@@ -28,7 +28,7 @@
         <div class="w-full max-w-lg p-8 bg-white rounded-xl shadow-lg">
 
             <h1 class="text-3xl font-bold text-center mb-6 text-blue-700">
-                📚 Book Reservation
+                Book Reservation
             </h1>
 
             <!-- Success Message -->
